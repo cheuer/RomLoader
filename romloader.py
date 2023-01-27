@@ -102,11 +102,10 @@ async def main():
     for port in ports:
         if is_open(port):
             await snes.connect(address='ws://localhost:{port}'.format(port=port))
-            try:
-                devicelist = await snes.DeviceList()
-                break
-            except Exception:
+            devicelist = await snes.DeviceList()
+            if not devicelist:
                 continue
+            break
 
     if not devicelist:
         raise Exception('Unable to connect to a suitable port!  Please ensure qusb2nes is listening on 64213, 23074, or 8080!')
