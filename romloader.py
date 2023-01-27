@@ -97,19 +97,19 @@ async def main():
 
     a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    if is_open(64213):
-        address = 'ws://localhost:64213'
-    elif is_open(23074):
-        address = 'ws://localhost:23074'
-    elif is_open(8080):
-        address = 'ws://localhost:8080'
-    else:
-        raise Exception(
-            'Unable to connect to a suitable port!  Please ensure qusb2nes is listening on 64213, 23074, or 8080!')
+    devicelist = None
+    ports = [64213, 23074, 8080]
+    for port in ports:
+        if is_open(port):
+            await snes.connect(address='ws://localhost:{port}'.format(port=port))
+            try:
+                devicelist = await snes.DeviceList()
+                break
+            except Exception:
+                continue
 
-    await snes.connect(address=address)
-
-    devicelist = await snes.DeviceList()
+    if not devicelist:
+        raise Exception('Unable to connect to a suitable port!  Please ensure qusb2nes is listening on 64213, 23074, or 8080!')
 
     # Attach to usb2snes, use the device configured if it is set, otherwise
     # have it find the first device.
